@@ -1,0 +1,40 @@
+version: "3.8"
+
+networks:
+  exam-network:
+    driver: bridge
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: exam-postgres
+    environment:
+      POSTGRES_DB: examdb
+      POSTGRES_USER: exam
+      POSTGRES_PASSWORD: exam123
+    ports:
+      - "5432:5432"
+    networks:
+      - exam-network
+
+  app:
+    build: ./app
+    container_name: exam-app
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/examdb
+      USERNAME: exam
+      PASSWORD: exam123
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - exam-network
+
+  nginx:
+    image: nginx:latest
+    container_name: exam-nginx
+    ports:
+      - "80:80"
+    networks:
+      - exam-network
